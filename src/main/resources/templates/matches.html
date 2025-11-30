@@ -1,100 +1,381 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>LoL Match Tracker</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1, h2 { margin-bottom: 0.5rem; }
-    form { margin-bottom: 1.5rem; }
-    label { display: block; margin: 0.25rem 0; }
-    input[type="text"],
-    input[type="number"],
-    input[type="date"] { padding: 4px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
-    th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
-    th { background-color: #f0f0f0; }
-    .stats span { font-weight: bold; }
-  </style>
+    <meta charset="UTF-8">
+    <title>LolStats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #0b0b10;
+            color: #e5e5e5;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px 40px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .top-section {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .profile-card {
+            flex: 1;
+            background: #151520;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .summoner-name {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+        }
+
+        .summary-stats div span.value {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .fetch-card {
+            width: 320px;
+            background: #151520;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .fetch-card h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            margin: 6px 0 2px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #484b60;
+            background-color: #10111a;
+            color: #e5e5e5;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            background: #2673ff;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #3b82ff;
+        }
+
+        .hint {
+            font-size: 11px;
+            margin-top: 6px;
+            color: #a0a0c0;
+        }
+
+        /* bottom layout: champions (left) + match history (right) */
+        .content {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .champion-section {
+            flex: 1;
+            background: #151520;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            max-height: 650px;
+            overflow-y: auto;
+        }
+
+        .champion-section h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .champion-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 4px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .champion-row:nth-child(odd) {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .champ-name {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .champ-meta {
+            text-align: right;
+        }
+
+        .champ-meta div {
+            margin-bottom: 2px;
+        }
+
+        .match-list {
+            flex: 1;
+        }
+
+        .match-list h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .match-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            background: #151520;
+            border-left: 4px solid #444;
+            font-size: 13px;
+        }
+
+        .match-card.win {
+            border-left-color: #3fbf66;
+            background: #14221a;
+        }
+
+        .match-card.loss {
+            border-left-color: #ff4e50;
+            background: #231216;
+        }
+
+        .match-left {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .match-result {
+            font-weight: bold;
+        }
+
+        .match-date {
+            font-size: 11px;
+            color: #bbbbd0;
+        }
+
+        .match-center {
+            flex: 1;
+            padding: 0 16px;
+        }
+
+        .champion-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .kda-line {
+            font-size: 12px;
+        }
+
+        .match-right {
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .no-matches {
+            font-size: 13px;
+            color: #aaaaaa;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body>
 
-<h1>League of Legends Match Tracker</h1>
+<div class="page">
+    <h1>LolStats</h1>
 
-<section class="stats">
-  <h2>Overall stats</h2>
-  <p>Total games: <span th:text="${total}">0</span></p>
-  <p>Wins: <span th:text="${wins}">0</span></p>
-  <p>Losses: <span th:text="${losses}">0</span></p>
-  <p>Winrate: <span th:text="${winrate}">0</span>%</p>
-</section>
+    <div class="top-section">
+        <!-- Summary / profile card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="summoner-name"
+                     th:text="${currentSummoner != null and currentSummoner != '' ? currentSummoner : 'No summoner selected'}">
+                    No summoner selected
+                </div>
+                <div style="font-size: 12px; color: #a0a0c0;">
+                    Last <span th:text="${total}">0</span> games
+                </div>
+            </div>
 
-<hr/>
+            <div class="summary-stats">
+                <div>
+                    Total games
+                    <span class="value" th:text="${total}">0</span>
+                </div>
+                <div>
+                    Wins
+                    <span class="value" th:text="${wins}">0</span>
+                </div>
+                <div>
+                    Losses
+                    <span class="value" th:text="${losses}">0</span>
+                </div>
+                <div>
+                    Winrate
+                    <span class="value" th:text="${winrate} + '%'">0%</span>
+                </div>
+                <div>
+                    Avg K / D / A
+                    <span class="value"
+                          th:text="${avgKills} + ' / ' + ${avgDeaths} + ' / ' + ${avgAssists}">0 / 0 / 0</span>
+                </div>
+                <div>
+                    KDA
+                    <span class="value" th:text="${kda}">0.00</span>
+                </div>
+            </div>
+        </div>
 
-<section>
-  <h2>Add match</h2>
-  <form th:action="@{/matches}" th:object="${matchForm}" method="post">
-    <label>Summoner:
-      <input type="text" th:field="*{summonerName}" required/>
-    </label>
-    <label>Champion:
-      <input type="text" th:field="*{champion}" required/>
-    </label>
-    <label>Role:
-      <input type="text" th:field="*{role}"/>
-    </label>
-    <label>Kills:
-      <input type="number" th:field="*{kills}" min="0" value="0"/>
-    </label>
-    <label>Deaths:
-      <input type="number" th:field="*{deaths}" min="0" value="0"/>
-    </label>
-    <label>Assists:
-      <input type="number" th:field="*{assists}" min="0" value="0"/>
-    </label>
-    <label>Date:
-      <input type="date" th:field="*{matchDate}"/>
-    </label>
-    <label>Win:
-      <input type="checkbox" th:field="*{win}"/>
-    </label>
-    <button type="submit">Save match</button>
-  </form>
-</section>
+        <!-- Fetch panel -->
+        <div class="fetch-card">
+            <h2>Fetch matches by Riot ID</h2>
+            <form th:action="@{/matches/fetch}" method="post">
+                <label>Username:</label>
+                <input type="text" name="gameName" placeholder="UserName" required/>
 
-<section>
-  <h2>Saved matches</h2>
-  <table>
-    <thead>
-    <tr>
-      <th>Date</th>
-      <th>Summoner</th>
-      <th>Champion</th>
-      <th>Role</th>
-      <th>K</th>
-      <th>D</th>
-      <th>A</th>
-      <th>Result</th>
-      <th>Action</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="m : ${matches}">
-      <td th:text="${m.matchDate}">2025-01-01</td>
-      <td th:text="${m.summonerName}">Summoner</td>
-      <td th:text="${m.champion}">Ahri</td>
-      <td th:text="${m.role}">Mid</td>
-      <td th:text="${m.kills}">0</td>
-      <td th:text="${m.deaths}">0</td>
-      <td th:text="${m.assists}">0</td>
-      <td th:text="${m.win ? 'Win' : 'Loss'}">Win</td>
-      <td>
-        <a th:href="@{'/matches/delete/' + ${m.id}}">Delete</a>
-      </td>
-    </tr>
-    </tbody>
-  </table>
-</section>
+                <label>Tagline:</label>
+                <input type="text" name="tagLine" placeholder="Tagline" required/>
+
+                <button type="submit">Fetch last 20 matches</button>
+            </form>
+            <div class="hint">
+                Example Riot ID: <code>faker#GUD</code> → game name = <code>faker</code>,
+                tag line = <code>GUD</code>.
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom: champions on left, matches on right -->
+    <div class="content">
+
+        <!-- LEFT: Most played champions -->
+        <div class="champion-section">
+            <h2>Most played champions</h2>
+
+            <div th:if="${championStats == null or championStats.isEmpty()}" class="no-matches">
+                No champion data yet. Play some matches first.
+            </div>
+
+            <div th:each="entry : ${championStats}" class="champion-row">
+                <div>
+                    <div class="champ-name" th:text="${entry.key}">Champion</div>
+                    <div>
+                        <span th:text="'Games: ' + ${entry.value.games}">Games: 0</span>
+                    </div>
+                </div>
+
+                <div class="champ-meta">
+                    <div>
+                        <span th:text="${#numbers.formatDecimal(entry.value.kda,1,1)}">0.0</span> KDA
+                    </div>
+                    <div>
+                        <span th:text="${#numbers.formatDecimal(entry.value.winrate,0,0)}">0</span>% WR
+                    </div>
+                    <div>
+                        <span th:text="${#numbers.formatDecimal(entry.value.avgKills,1,1)}">0.0</span> /
+                        <span th:text="${#numbers.formatDecimal(entry.value.avgDeaths,1,1)}">0.0</span> /
+                        <span th:text="${#numbers.formatDecimal(entry.value.avgAssists,1,1)}">0.0</span>
+                        &nbsp;K / D / A
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Match history -->
+        <div class="match-list">
+            <h2>Match History</h2>
+
+            <div th:if="${#lists.isEmpty(matches)}" class="no-matches">
+                No matches saved yet. Play some matches first.
+            </div>
+
+            <div th:each="m : ${matches}"
+                 th:class="'match-card ' + (${m.win} ? 'win' : 'loss')">
+
+                <div class="match-left">
+                    <div class="match-result"
+                         th:text="${m.win} ? 'Win' : 'Loss'">Win</div>
+                    <div class="match-date"
+                         th:text="${m.matchDate}">2025-01-01</div>
+                </div>
+
+                <div class="match-center">
+                    <div class="champion-name"
+                         th:text="${m.champion}">Champion</div>
+                    <div class="kda-line">
+                        <span th:text="${m.kills}">0</span> /
+                        <span th:text="${m.deaths}">0</span> /
+                        <span th:text="${m.assists}">0</span>
+                        &nbsp;(
+                        <span th:text="${#numbers.formatDecimal(
+                            (m.deaths == 0 ? (m.kills + m.assists) : (m.kills + m.assists) * 1.0 / m.deaths),
+                            1, 1
+                        )}">0.0</span>
+                        KDA)
+                    </div>
+                </div>
+
+                <div class="match-right">
+                    <div th:text="${m.summonerName}">summoner#TAG</div>
+                    <div th:text="${m.role}">Role</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
