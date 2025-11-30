@@ -128,9 +128,5 @@ public class MatchController {
         return "redirect:/matches?summoner=" + encoded;
     }
 
-    @GetMapping("/matches/delete/{id}")
-    public String deleteMatch(@PathVariable Long id) {
-        matchRepository.deleteById(id);
-        return "redirect:/matches";
-    }
+
 }

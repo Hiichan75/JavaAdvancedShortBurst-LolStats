@@ -31,10 +31,10 @@ public class RiotApiService {
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
-    // -------------------------------------------------------------------------------------
-    // STEP 1: Get PUUID for a Riot ID (gameName + tagLine)
+
+    // Get PUUID for a Riot ID (gameName + tagLine)
     // Endpoint: /riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}
-    // -------------------------------------------------------------------------------------
+
     public String getPuuidFromRiotId(String gameName, String tagLine) throws Exception {
 
         String url = String.format(
@@ -55,17 +55,17 @@ public class RiotApiService {
 
         if (response.statusCode() != 200) {
             System.out.println("Account lookup failed, status = " + response.statusCode());
-            return null;    // caller will handle gracefully
+            return null;
         }
 
         JsonNode json = mapper.readTree(response.body());
         return json.get("puuid").asText();
     }
 
-    // -------------------------------------------------------------------------------------
-    // STEP 2: Get last X match IDs by PUUID (match-v5)
+
+    // Get last X match IDs by PUUID (match-v5)
     // Endpoint: /lol/match/v5/matches/by-puuid/{puuid}/ids
-    // -------------------------------------------------------------------------------------
+
     public List<String> getRecentMatchIds(String puuid, int count) throws Exception {
 
         if (puuid == null) {
@@ -103,9 +103,9 @@ public class RiotApiService {
         return ids;
     }
 
-    // -------------------------------------------------------------------------------------
-    // STEP 3: Convert Riot matches → our Match entity
-    // -------------------------------------------------------------------------------------
+
+    //Convert matches
+
     public List<Match> fetchMatchesForRiotId(String gameName, String tagLine, int count) throws Exception {
 
         String puuid = getPuuidFromRiotId(gameName, tagLine);
@@ -155,7 +155,7 @@ public class RiotApiService {
                 }
 
                 Match match = new Match();
-                // store "gameName#tagLine" for display and filtering
+
                 match.setSummonerName(gameName + "#" + tagLine);
                 match.setChampion(p.get("championName").asText());
                 match.setKills(p.get("kills").asInt());
