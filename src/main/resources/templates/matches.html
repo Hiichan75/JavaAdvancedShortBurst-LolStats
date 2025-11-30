@@ -280,7 +280,7 @@
 
         <!-- Fetch panel -->
         <div class="fetch-card">
-            <h2>Fetch matches by Riot ID</h2>
+            <h2>Enter Your Riot ID</h2>
             <form th:action="@{/matches/fetch}" method="post">
                 <label>Username:</label>
                 <input type="text" name="gameName" placeholder="UserName" required/>
@@ -288,7 +288,7 @@
                 <label>Tagline:</label>
                 <input type="text" name="tagLine" placeholder="Tagline" required/>
 
-                <button type="submit">Fetch last 20 matches</button>
+                <button type="submit">Search last 20 matches</button>
             </form>
             <div class="hint">
                 Example Riot ID: <code>Username#Tagline</code> → Username = <code>Username</code>,
