@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>LoL Match Tracker</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { margin-bottom: 0.5rem; }
+    form { margin-bottom: 1.5rem; }
+    label { display: block; margin: 0.25rem 0; }
+    input[type="text"],
+    input[type="number"],
+    input[type="date"] { padding: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+    th { background-color: #f0f0f0; }
+    .stats span { font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h1>League of Legends Match Tracker</h1>
+
+<section class="stats">
+  <h2>Overall stats</h2>
+  <p>Total games: <span th:text="${total}">0</span></p>
+  <p>Wins: <span th:text="${wins}">0</span></p>
+  <p>Losses: <span th:text="${losses}">0</span></p>
+  <p>Winrate: <span th:text="${winrate}">0</span>%</p>
+</section>
+
+<hr/>
+
+<section>
+  <h2>Add match</h2>
+  <form th:action="@{/matches}" th:object="${matchForm}" method="post">
+    <label>Summoner:
+      <input type="text" th:field="*{summonerName}" required/>
+    </label>
+    <label>Champion:
+      <input type="text" th:field="*{champion}" required/>
+    </label>
+    <label>Role:
+      <input type="text" th:field="*{role}"/>
+    </label>
+    <label>Kills:
+      <input type="number" th:field="*{kills}" min="0" value="0"/>
+    </label>
+    <label>Deaths:
+      <input type="number" th:field="*{deaths}" min="0" value="0"/>
+    </label>
+    <label>Assists:
+      <input type="number" th:field="*{assists}" min="0" value="0"/>
+    </label>
+    <label>Date:
+      <input type="date" th:field="*{matchDate}"/>
+    </label>
+    <label>Win:
+      <input type="checkbox" th:field="*{win}"/>
+    </label>
+    <button type="submit">Save match</button>
+  </form>
+</section>
+
+<section>
+  <h2>Saved matches</h2>
+  <table>
+    <thead>
+    <tr>
+      <th>Date</th>
+      <th>Summoner</th>
+      <th>Champion</th>
+      <th>Role</th>
+      <th>K</th>
+      <th>D</th>
+      <th>A</th>
+      <th>Result</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="m : ${matches}">
+      <td th:text="${m.matchDate}">2025-01-01</td>
+      <td th:text="${m.summonerName}">Summoner</td>
+      <td th:text="${m.champion}">Ahri</td>
+      <td th:text="${m.role}">Mid</td>
+      <td th:text="${m.kills}">0</td>
+      <td th:text="${m.deaths}">0</td>
+      <td th:text="${m.assists}">0</td>
+      <td th:text="${m.win ? 'Win' : 'Loss'}">Win</td>
+      <td>
+        <a th:href="@{'/matches/delete/' + ${m.id}}">Delete</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</section>
+
+</body>
+</html>
