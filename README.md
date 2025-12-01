@@ -48,3 +48,10 @@ How to structure a real-world full-stack application
 2. Add your Riot API key to application.properties (https://developer.riotgames.com/)
 3. Run LolStatsApplication.java
 4. Go to `http://localhost:8080/` in your browser
+
+## Sources
+
+https://developer.riotgames.com/
+https://developer.riotgames.com/apis#account-v1
+https://www.youtube.com/watch?v=0NycEiHOeX8&t=844s
+https://chatgpt.com/
